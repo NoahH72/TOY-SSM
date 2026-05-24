@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Large sim outputs (GitHub 100 MB file limit; re-run sim on clone)
+hw2d_ssm/hw2d_ssm/data/*.h5
+hw2d_ssm/outputs/
+*.pt
+
+# OS / IDE
+.DS_Store
+.cursor/

@@ -1,0 +1,12 @@
+torch>=2.0.0
+einops>=0.7.0
+scipy>=1.10.0
+matplotlib>=3.7.0
+numpy>=1.24.0
+# Stage 2 (Hasegawa-Wakatani turbulence)
+h5py>=3.9.0
+hw2d>=1.0.0
+# Notebooks
+jupyter>=1.0.0
+ipykernel>=6.0.0
+scikit-learn>=1.3.0
