@@ -1,5 +1,5 @@
 """
-CNN-SSM: Convolutional encoder + Linear SSM + Convolutional decoder
+CNN-SSM: Convolutional encoder + SSM + Convolutional decoder
 for full 2-D field prediction on Hasegawa-Wakatani plasma turbulence.
 
 Architecture
@@ -10,7 +10,8 @@ Architecture
       │
   latent_t  (latent_dim,)
       │
-  LinearSSM     ← learns temporal dynamics in latent space
+  SSM           ← learns temporal dynamics in latent space
+                   (LinearSSM by default; swap in StackedS4DSSM via ssm_cls)
       │
   latent_t+1_pred
       │
@@ -21,6 +22,11 @@ Architecture
 Training loss: pixel MSE on the decoded next frame.
 Also returns latent predictions so you can supervise/inspect
 the latent space separately.
+
+Swapping the SSM
+----------------
+    from hw2d_ssm.models.s4d_stacked import StackedS4DSSM
+    model = CNNSSM(ssm_cls=StackedS4DSSM, ssm_kwargs=dict(n_layers=3, d_model=128))
 """
 
 from __future__ import annotations
@@ -36,6 +42,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from lorenz_ssm.models.linear_ssm import LinearSSM
+from hw2d_ssm.models.s4d_stacked import StackedS4DSSM
 
 
 class CNNEncoder(nn.Module):
@@ -103,12 +110,27 @@ class CNNSSM(nn.Module):
         in_channels: int = 3,
         latent_dim: int = 64,
         state_dim: int = 128,
+        ssm_cls: type = LinearSSM,
+        ssm_kwargs: dict | None = None,
     ):
+        """
+        Parameters
+        ----------
+        ssm_cls : type
+            SSM class to use for latent dynamics.  Must share the
+            ``LinearSSM`` interface (``forward_sequence`` / ``one_step``).
+            Defaults to ``LinearSSM``; pass ``StackedS4DSSM`` for the
+            stacked S4D variant.
+        ssm_kwargs : dict, optional
+            Extra keyword arguments forwarded to ``ssm_cls.__init__``
+            *after* ``(latent_dim, latent_dim, state_dim)``.
+            Example: ``dict(n_layers=4, d_model=128, dropout=0.1)``
+        """
         super().__init__()
         self.latent_dim = latent_dim
         self.state_dim = state_dim
         self.encoder = CNNEncoder(in_channels, latent_dim)
-        self.ssm = LinearSSM(latent_dim, latent_dim, state_dim)
+        self.ssm = ssm_cls(latent_dim, latent_dim, state_dim, **(ssm_kwargs or {}))
         self.decoder = CNNDecoder(latent_dim, in_channels)
 
     def forward_sequence(

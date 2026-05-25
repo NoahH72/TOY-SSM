@@ -76,7 +76,7 @@ def build_dataset(
 # ---------- training ---------------------------------------------------
 
 def train_step(
-    model: LinearSSM,
+    model: nn.Module,
     batch: torch.Tensor,
     optimizer: torch.optim.Optimizer,
     criterion: nn.Module,
@@ -93,14 +93,14 @@ def train_step(
 
 
 @torch.no_grad()
-def eval_loss(model: LinearSSM, batch: torch.Tensor, criterion: nn.Module) -> float:
+def eval_loss(model: nn.Module, batch: torch.Tensor, criterion: nn.Module) -> float:
     model.eval()
     preds, _ = model.forward_sequence(batch)
     return float(criterion(preds, batch[:, 1:]).item())
 
 
 def train_loop(
-    model: LinearSSM,
+    model: nn.Module,
     ds: DatasetBundle,
     epochs: int = 400,
     lr: float = 1e-3,
@@ -123,7 +123,7 @@ def train_loop(
 # ---------- inference helpers -----------------------------------------
 
 @torch.no_grad()
-def rollout(model: LinearSSM, u0: torch.Tensor, steps: int) -> np.ndarray:
+def rollout(model: nn.Module, u0: torch.Tensor, steps: int) -> np.ndarray:
     """Autoregressive rollout: feed each prediction back in as the next input.
 
     u0: (batch, input_dim).  Returns (steps+1, input_dim) for batch=1.

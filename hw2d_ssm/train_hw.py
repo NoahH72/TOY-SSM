@@ -92,7 +92,7 @@ def eval_loss(model, batch, criterion):
     return float(criterion(preds, batch[:, 1:]).item())
 
 
-def train_hw(model: LinearSSM, ds: HWDatasetBundle,
+def train_hw(model: nn.Module, ds: HWDatasetBundle,
              epochs: int = 600, lr: float = 1e-3,
              batch_size: int | None = None, log_every: int = 50):
     """Mini-batched training over the window set."""
