@@ -53,7 +53,7 @@ class CNNEncoder(nn.Module):
     stable across batch sizes as small as 1.
     """
 
-    def __init__(self, in_channels: int = 3, latent_dim: int = 64):
+    def __init__(self, in_channels: int = 3, latent_dim: int = 256):
         super().__init__()
         self.latent_dim = latent_dim
         self.conv = nn.Sequential(
@@ -79,7 +79,7 @@ class CNNDecoder(nn.Module):
     Mirror of CNNEncoder: linear + reshape, then 4 transposed convolutions.
     """
 
-    def __init__(self, latent_dim: int = 64, out_channels: int = 3):
+    def __init__(self, latent_dim: int = 256, out_channels: int = 3):
         super().__init__()
         self.fc = nn.Linear(latent_dim, 128 * 8 * 8)
         self.deconv = nn.Sequential(
@@ -108,7 +108,7 @@ class CNNSSM(nn.Module):
     def __init__(
         self,
         in_channels: int = 3,
-        latent_dim: int = 64,
+        latent_dim: int = 256,
         state_dim: int = 128,
         ssm_cls: type = LinearSSM,
         ssm_kwargs: dict | None = None,
